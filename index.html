@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>IMDb Data Fetcher</title>
-    <script>
-        async function fetchData() {
-            const imdbUrl = document.getElementById("imdbUrl").value;
-            const code = document.getElementById("code").value;
-            
-            try {
-                const response = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=fc021bce&t=${imdbUrl}`);
-                const data = await response.json();
-
-                if (response.ok) {
-                    const movieData = `Title: ${data.Title}<br>Year: ${data.Year}<br>Genre: ${data.Genre}`;
-                    document.getElementById("codeOutput").innerHTML = code + "<br>" + movieData;
-                } else {
-                    document.getElementById("codeOutput").innerHTML = "Error: Unable to fetch data from IMDb API.";
-                }
-            } catch (error) {
-                document.getElementById("codeOutput").innerHTML = "Error: " + error.message;
-            }
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb Movie Data</title>
 </head>
 <body>
-    <h1>IMDb Data Fetcher</h1>
-    <label for="imdbUrl">IMDb URL:</label>
-    <input type="text" id="imdbUrl" placeholder="Enter IMDb URL">
-    <br><br>
-    <label for="code">Code:</label>
-    <textarea id="code" rows="4" cols="50" placeholder="Paste your code here"></textarea>
-    <br><br>
-    <button onclick="fetchData()">Add</button>
-    <br><br>
-    <div id="codeOutput"></div>
+    <h1>IMDb Movie Data</h1>
+    <input type="text" id="movieTitle" placeholder="Enter a movie title">
+    <button onclick="searchMovie()">Search</button>
+    <div id="movieData"></div>
+
+    <script>
+        function searchMovie() {
+            const movieTitle = document.getElementById("movieTitle").value;
+            const apiKey = "fc021bce"; // Get your API key from http://www.omdbapi.com/apikey.aspx
+
+            if (!movieTitle) {
+                alert("Please enter a movie title.");
+                return;
+            }
+
+            fetch(`http://www.omdbapi.com/?t=${encodeURIComponent(movieTitle)}&apikey=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.Response === "True") {
+                        const movieData = document.getElementById("movieData");
+                        movieData.innerHTML = `
+                            <h2>${data.Title} (${data.Year})</h2>
+                            <p>Director: ${data.Director}</p>
+                            <p>Actors: ${data.Actors}</p>
+                            <p>Plot: ${data.Plot}</p>
+                            <img src="${data.Poster}" alt="${data.Title} Poster">
+                        `;
+                    } else {
+                        alert("Movie not found!");
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("An error occurred while fetching movie data.");
+                });
+        }
+    </script>
 </body>
 </html>
